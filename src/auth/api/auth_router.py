@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session
 from src.shared.database import get_session
-from src.auth.domain.user_model import UserCreate, UserRead, User
+from src.auth.domain.user_model import UserCreate, UserRead, UserRole, User
 from src.auth.infrastructure import security_service
 from src.shared.exceptions import BusinessException
 
@@ -12,6 +12,14 @@ router = APIRouter()
 
 @router.post("/register", response_model=UserRead, status_code=status.HTTP_201_CREATED)
 def register_user(user_in: UserCreate, session: Session = Depends(get_session)):
+    # Asignar rol por defecto si no se proporciona y validar
+    user_role = user_in.role or UserRole.CLIENT
+    if user_role not in [UserRole.CLIENT, UserRole.ADMIN]:
+        raise BusinessException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El rol debe ser 'client' o 'admin'."
+        )
+
     db_user = session.query(User).filter(User.email == user_in.email).first()
     if db_user:
         raise BusinessException(
@@ -23,8 +31,8 @@ def register_user(user_in: UserCreate, session: Session = Depends(get_session)):
     db_user = User(
         email=user_in.email,
         full_name=user_in.full_name,
-        hashed_password=hashed_password
-        # El rol por defecto es 'client'
+        hashed_password=hashed_password,
+        role=user_role
     )
     session.add(db_user)
     session.commit()
