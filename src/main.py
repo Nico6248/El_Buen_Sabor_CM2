@@ -6,6 +6,7 @@ from src.restaurants.api.restaurant_router import router as restaurant_router
 from src.menu.api.menu_router import router as menu_router
 from src.reservations.api.reservation_router import router as reservation_router
 from src.dashboard.api.dashboard_router import router as dashboard_router
+from src.users.api.users_router import router as users_router
 from src.shared.exceptions import setup_exception_handlers
 
 # Creación de la instancia de FastAPI
@@ -31,6 +32,7 @@ app.include_router(restaurant_router, prefix="/restaurants", tags=["Restaurantes
 app.include_router(menu_router, prefix="/menu", tags=["Menú"])
 app.include_router(reservation_router, prefix="/reservations", tags=["Reservas"])
 app.include_router(dashboard_router, prefix="/dashboard", tags=["Dashboard"])
+app.include_router(users_router, prefix="/users", tags=["Usuarios"])
 
 
 @app.get("/", tags=["Root"])

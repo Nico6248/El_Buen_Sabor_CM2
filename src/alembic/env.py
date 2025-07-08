@@ -4,6 +4,13 @@ from sqlalchemy import pool
 from alembic import context
 import os
 import sys
+from src.shared.database import SQLModel
+from src.auth.domain.user_model import User
+from src.restaurants.domain.restaurant_model import Restaurant, Table
+from src.menu.domain.menu_model import Dish
+from src.reservations.domain.reservation_model import Reservation
+
+target_metadata = SQLModel.metadata
 
 # Agregar el directorio raíz al path para poder importar los modelos
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
@@ -21,7 +28,6 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = None
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

@@ -1,17 +1,25 @@
-
 # src/auth/api/auth_router.py
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session
 from src.shared.database import get_session
-from src.auth.domain.user_model import UserCreate, UserRead, User
+from src.auth.domain.user_model import UserCreate, UserRead, User, UserRole
 from src.auth.infrastructure import security_service
 from src.shared.exceptions import BusinessException
+
 
 router = APIRouter()
 
 @router.post("/register", response_model=UserRead, status_code=status.HTTP_201_CREATED)
 def register_user(user_in: UserCreate, session: Session = Depends(get_session)):
+    # Validar que el rol es válido
+    valid_roles = [UserRole.CLIENT, UserRole.ADMIN]
+    if user_in.role not in valid_roles:
+        raise BusinessException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Rol inválido. Use uno de: {valid_roles}"
+        )
+    
     db_user = session.query(User).filter(User.email == user_in.email).first()
     if db_user:
         raise BusinessException(
@@ -23,8 +31,8 @@ def register_user(user_in: UserCreate, session: Session = Depends(get_session)):
     db_user = User(
         email=user_in.email,
         full_name=user_in.full_name,
-        hashed_password=hashed_password
-        # El rol por defecto es 'client'
+        hashed_password=hashed_password,
+        role=user_in.role  # Asignar el rol que viene en la petición
     )
     session.add(db_user)
     session.commit()
@@ -47,3 +55,5 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), ses
         data={"sub": user.email, "scopes": scopes}
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
+
