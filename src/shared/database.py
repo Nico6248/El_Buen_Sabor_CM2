@@ -3,6 +3,10 @@ import os
 from sqlmodel import create_engine, Session, SQLModel
 from typing import Generator
 
+# Importar todos los modelos para que SQLModel los registre
+from src.auth.domain.user_model import User
+from src.restaurants.domain.restaurant_model import Restaurant, Table
+
 # Carga la URL de la base de datos desde las variables de entorno
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://user:password@localhost/mydatabase")
 

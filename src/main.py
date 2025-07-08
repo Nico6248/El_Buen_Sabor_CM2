@@ -23,8 +23,7 @@ setup_exception_handlers(app)
 def on_startup():
     # En un entorno de producción, las migraciones con Alembic son la mejor práctica.
     # Esta función es útil para desarrollo y pruebas rápidas.
-    # create_db_and_tables()
-    pass
+    create_db_and_tables()
 
 # Inclusión de los routers de los diferentes módulos
 app.include_router(auth_router, prefix="/auth", tags=["Autenticación"])
